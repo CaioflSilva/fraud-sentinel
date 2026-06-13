@@ -23,10 +23,12 @@ class TransactionStatusTest {
     }
 
     @Test
-    @DisplayName("RULES_DONE so pode ir para ENRICHED")
-    void rulesDoneShouldOnlyTransitionToEnriched() {
+    @DisplayName("RULES_DONE pode ir para ENRICHED, APPROVED ou FLAGGED")
+    void rulesDoneShouldTransitionToEnrichedOrFinalStates() {
         assertTrue(TransactionStatus.RULES_DONE.canTransitionTo(TransactionStatus.ENRICHED));
-        assertFalse(TransactionStatus.RULES_DONE.canTransitionTo(TransactionStatus.APPROVED));
+        assertTrue(TransactionStatus.RULES_DONE.canTransitionTo(TransactionStatus.APPROVED));
+        assertTrue(TransactionStatus.RULES_DONE.canTransitionTo(TransactionStatus.FLAGGED));
+        assertFalse(TransactionStatus.RULES_DONE.canTransitionTo(TransactionStatus.PENDING));
     }
 
     @Test

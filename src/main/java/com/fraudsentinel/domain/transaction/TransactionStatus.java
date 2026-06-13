@@ -13,7 +13,7 @@ public enum TransactionStatus {
         return switch (this) {
             case PENDING -> next == ANALYZING;
             case ANALYZING -> next == RULES_DONE;
-            case RULES_DONE -> next == ENRICHED;
+            case RULES_DONE -> next == ENRICHED || next == APPROVED || next == FLAGGED;
             case ENRICHED -> next == APPROVED || next == FLAGGED;
             case APPROVED, FLAGGED -> false;
         };
