@@ -1,7 +1,4 @@
-Cria o arquivo README.md na raiz do projeto (não dentro de docs).
-IntelliJ: botão direito na raiz do projeto → New → File → README.md
-Cola isso:
-markdown# Fraud Sentinel
+# Fraud Sentinel
 
 Sistema de detecção de fraudes financeiras em tempo real, construído com arquitetura
 orientada a eventos, motor de regras determinístico e enriquecimento por IA assíncrona.
