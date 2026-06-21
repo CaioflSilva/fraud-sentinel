@@ -21,8 +21,18 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:fraud-sentinel-super-secret-key-that-is-at-least-256-bits-long-for-hs256}
+  access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+  refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 logging:
   level:
