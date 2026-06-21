@@ -17,6 +17,7 @@ public class AuthService {
     private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtBlacklistService blacklistService;
 
     public record AuthResult(String accessToken, String refreshToken, String email, String role) {}
 
@@ -56,6 +57,15 @@ public class AuthService {
         var role = jwtTokenService.getRole(refreshToken);
 
         return generateTokens(email, role);
+    }
+
+    public void logout(String accessToken) {
+        if (!jwtTokenService.isValidToken(accessToken)) {
+            throw new IllegalArgumentException("Token invalido");
+        }
+        var jti = jwtTokenService.getJti(accessToken);
+        var expiration = jwtTokenService.getExpiration(accessToken);
+        blacklistService.blacklist(jti, expiration);
     }
 
     private AuthResult generateTokens(String email, String role) {

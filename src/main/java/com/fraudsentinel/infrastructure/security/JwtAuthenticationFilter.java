@@ -19,6 +19,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
+    private final JwtBlacklistService blacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -28,19 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         var token = extractToken(request);
 
         if (token != null && jwtTokenService.isValidToken(token)) {
-            var type = jwtTokenService.getTokenType(token);
+            var jti = jwtTokenService.getJti(token);
 
-            if ("access".equals(type)) {
-                var email = jwtTokenService.getEmail(token);
-                var role = jwtTokenService.getRole(token);
+            if (!blacklistService.isBlacklisted(jti)) {
+                var type = jwtTokenService.getTokenType(token);
 
-                var auth = new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                );
+                if ("access".equals(type)) {
+                    var email = jwtTokenService.getEmail(token);
+                    var role = jwtTokenService.getRole(token);
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                    var auth = new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         }
 
