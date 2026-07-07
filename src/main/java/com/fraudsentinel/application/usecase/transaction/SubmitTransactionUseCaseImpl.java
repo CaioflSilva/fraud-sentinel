@@ -1,7 +1,9 @@
 package com.fraudsentinel.application.usecase.transaction;
 
 import com.fraudsentinel.application.port.in.SubmitTransactionUseCase;
+import com.fraudsentinel.application.port.out.EventPublisherPort;
 import com.fraudsentinel.application.port.out.TransactionRepositoryPort;
+import com.fraudsentinel.domain.event.TransactionCreatedEvent;
 import com.fraudsentinel.domain.transaction.Money;
 import com.fraudsentinel.domain.transaction.Transaction;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SubmitTransactionUseCaseImpl implements SubmitTransactionUseCase {
 
     private final TransactionRepositoryPort repositoryPort;
+    private final EventPublisherPort eventPublisherPort;
 
     @Override
     @Transactional
@@ -30,6 +33,23 @@ public class SubmitTransactionUseCaseImpl implements SubmitTransactionUseCase {
                 command.location()
         );
 
-        return repositoryPort.save(transaction);
+        var saved = repositoryPort.save(transaction);
+
+        var event = new TransactionCreatedEvent(
+                saved.getId(),
+                saved.getUserId(),
+                saved.getMoney().getAmount(),
+                saved.getMoney().getCurrency(),
+                saved.getOriginAccount(),
+                saved.getTargetAccount(),
+                saved.getDeviceId(),
+                saved.getIpAddress(),
+                saved.getLocation(),
+                saved.getCreatedAt()
+        );
+
+        eventPublisherPort.publish(event);
+
+        return saved;
     }
 }
