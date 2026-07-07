@@ -29,6 +29,28 @@ services:
       timeout: 5s
       retries: 5
 
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.3.1
+    container_name: fraud-sentinel-kafka
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --smp 1
+      - --memory 256M
+      - --overprovisioned
+    ports:
+      - "19092:19092"
+    volumes:
+      - fraud_sentinel_redpanda:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   fraud_sentinel_data:
   fraud_sentinel_redis:
+  fraud_sentinel_redpanda:
