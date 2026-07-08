@@ -94,6 +94,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Jackson Java Time (LocalDateTime serialization) -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+
 		<!-- Rate Limiting -->
 		<dependency>
 			<groupId>com.bucket4j</groupId>
