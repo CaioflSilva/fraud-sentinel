@@ -1,8 +1,9 @@
 package com.fraudsentinel.configuration;
 
 import com.fraudsentinel.infrastructure.security.JwtAuthenticationFilter;
+import com.fraudsentinel.infrastructure.security.JwtBlacklistService;
+import com.fraudsentinel.infrastructure.security.JwtTokenService;
 import com.fraudsentinel.infrastructure.security.RateLimitingFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,14 +20,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final RateLimitingFilter rateLimitingFilter;
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtTokenService jwtTokenService,
+                                                   JwtBlacklistService blacklistService) throws Exception {
+        var jwtFilter = new JwtAuthenticationFilter(jwtTokenService, blacklistService);
+        var rateLimitFilter = new RateLimitingFilter();
+
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
@@ -36,8 +38,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
                 .build();
     }
 
