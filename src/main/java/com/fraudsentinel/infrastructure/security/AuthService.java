@@ -1,5 +1,6 @@
 package com.fraudsentinel.infrastructure.security;
 
+import com.fraudsentinel.application.port.in.AuthUseCase;
 import com.fraudsentinel.application.port.out.UserRepositoryPort;
 import com.fraudsentinel.domain.user.Role;
 import com.fraudsentinel.domain.user.User;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements AuthUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
     private final JwtTokenService jwtTokenService;
@@ -19,8 +20,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtBlacklistService blacklistService;
 
-    public record AuthResult(String accessToken, String refreshToken, String email, String role) {}
-
+    @Override
     public AuthResult register(String email, String password) {
         if (userRepositoryPort.existsByEmail(email)) {
             throw new IllegalArgumentException("Email ja cadastrado: " + email);
@@ -32,6 +32,7 @@ public class AuthService {
         return generateTokens(email, user.getRole().name());
     }
 
+    @Override
     public AuthResult login(String email, String password) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
@@ -43,6 +44,7 @@ public class AuthService {
         return generateTokens(email, user.getRole().name());
     }
 
+    @Override
     public AuthResult refresh(String refreshToken) {
         if (!jwtTokenService.isValidToken(refreshToken)) {
             throw new IllegalArgumentException("Refresh token invalido");
@@ -59,6 +61,7 @@ public class AuthService {
         return generateTokens(email, role);
     }
 
+    @Override
     public void logout(String accessToken) {
         if (!jwtTokenService.isValidToken(accessToken)) {
             throw new IllegalArgumentException("Token invalido");

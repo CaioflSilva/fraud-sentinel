@@ -1,6 +1,6 @@
 package com.fraudsentinel.presentation.controller;
 
-import com.fraudsentinel.infrastructure.security.AuthService;
+import com.fraudsentinel.application.port.in.AuthUseCase;
 import com.fraudsentinel.presentation.dto.AuthResponse;
 import com.fraudsentinel.presentation.dto.LoginRequest;
 import com.fraudsentinel.presentation.dto.RegisterRequest;
@@ -21,18 +21,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthUseCase authUseCase;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        var result = authService.register(request.email(), request.password());
+        var result = authUseCase.register(request.email(), request.password());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new AuthResponse(result.accessToken(), result.refreshToken(), result.email(), result.role()));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        var result = authService.login(request.email(), request.password());
+        var result = authUseCase.login(request.email(), request.password());
         return ResponseEntity.ok(
                 new AuthResponse(result.accessToken(), result.refreshToken(), result.email(), result.role()));
     }
@@ -40,7 +40,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody Map<String, String> request) {
         var refreshToken = request.get("refreshToken");
-        var result = authService.refresh(refreshToken);
+        var result = authUseCase.refresh(refreshToken);
         return ResponseEntity.ok(
                 new AuthResponse(result.accessToken(), result.refreshToken(), result.email(), result.role()));
     }
@@ -48,7 +48,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
         var token = authHeader.replace("Bearer ", "");
-        authService.logout(token);
+        authUseCase.logout(token);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,9 +1,9 @@
 package com.fraudsentinel.configuration;
 
-import com.fraudsentinel.infrastructure.security.JwtAuthenticationFilter;
+import com.fraudsentinel.presentation.filter.JwtAuthenticationFilter;
 import com.fraudsentinel.infrastructure.security.JwtBlacklistService;
 import com.fraudsentinel.infrastructure.security.JwtTokenService;
-import com.fraudsentinel.infrastructure.security.RateLimitingFilter;
+import com.fraudsentinel.presentation.filter.RateLimitingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
