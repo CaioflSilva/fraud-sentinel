@@ -69,6 +69,24 @@ graph TB
 
 ---
 
+## Roadmap
+
+| Sprint | Objetivo | Status |
+|---|---|---|
+| 0 | Arquitetura (diagramas, ADRs, README) | ✅ |
+| 1 | Persistência (Postgres, Flyway, domínio) | ✅ |
+| 2 | Autenticação (JWT, Redis, rate limit) | ✅ |
+| 3 | Kafka + Transactional Outbox | ✅ |
+| Refactor | Correção arquitetural (score 20 → 95) | ✅ |
+| 4 | Rule Engine + Scoring (MVP fraude) | ✅ |
+| 5 | IA assíncrona (Spring AI / Groq) | ⬜ próxima |
+| 6 | Observabilidade (Prometheus, Grafana) | ⬜ |
+| 7 | CI/CD + Sonar + testes finais | ⬜ |
+
+Progresso atual: **~75%**
+
+---
+
 ## Stack
 
 | Camada | Tecnologia |
