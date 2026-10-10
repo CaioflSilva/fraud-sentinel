@@ -1,6 +1,7 @@
 package com.fraudsentinel.infrastructure.messaging.outbox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fraudsentinel.domain.event.FraudAnalyzedEvent;
 import com.fraudsentinel.domain.event.TransactionCreatedEvent;
 import com.fraudsentinel.infrastructure.persistence.repository.OutboxEventJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OutboxRelay {
 
     private final OutboxEventJpaRepository outboxRepository;
-    private final KafkaTemplate<String, TransactionCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     @Scheduled(fixedDelay = 1000)
@@ -26,20 +27,35 @@ public class OutboxRelay {
 
         for (var event : events) {
             try {
-                var payload = objectMapper.readValue(event.getPayload(), TransactionCreatedEvent.class);
-
-                kafkaTemplate.send("transaction-created", payload.transactionId().toString(), payload)
-                        .whenComplete((result, ex) -> {
-                            if (ex != null) {
-                                log.error("Outbox: falha ao publicar evento id={}", event.getId(), ex);
-                            }
-                        });
+                switch (event.getEventType()) {
+                    case "TransactionCreated" -> {
+                        var payload = objectMapper.readValue(event.getPayload(), TransactionCreatedEvent.class);
+                        kafkaTemplate.send("transaction-created", payload.transactionId().toString(), payload)
+                                .whenComplete((result, ex) -> {
+                                    if (ex != null) {
+                                        log.error("Outbox: falha ao publicar evento id={}", event.getId(), ex);
+                                    }
+                                });
+                        log.info("Outbox: evento publicado topic=transaction-created, id={}", event.getId());
+                    }
+                    case "FraudAnalyzed" -> {
+                        var payload = objectMapper.readValue(event.getPayload(), FraudAnalyzedEvent.class);
+                        kafkaTemplate.send("fraud-analyzed", payload.transactionId().toString(), payload)
+                                .whenComplete((result, ex) -> {
+                                    if (ex != null) {
+                                        log.error("Outbox: falha ao publicar evento id={}", event.getId(), ex);
+                                    }
+                                });
+                        log.info("Outbox: evento publicado topic=fraud-analyzed, id={}", event.getId());
+                    }
+                    default -> {
+                        log.warn("Outbox: eventType desconhecido: {}", event.getEventType());
+                        continue;
+                    }
+                }
 
                 event.setPublished(true);
                 outboxRepository.save(event);
-
-                log.info("Outbox: evento publicado id={}, transactionId={}",
-                        event.getId(), payload.transactionId());
 
             } catch (Exception e) {
                 log.error("Outbox: erro ao processar evento id={}", event.getId(), e);
