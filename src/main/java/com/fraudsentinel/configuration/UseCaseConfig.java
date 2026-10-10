@@ -1,11 +1,14 @@
 package com.fraudsentinel.configuration;
 
 import com.fraudsentinel.application.port.in.AnalyzeTransactionUseCase;
+import com.fraudsentinel.application.port.in.EnrichFraudAnalysisUseCase;
 import com.fraudsentinel.application.port.in.SubmitTransactionUseCase;
+import com.fraudsentinel.application.port.out.AiAnalysisPort;
 import com.fraudsentinel.application.port.out.FraudAnalysisRepositoryPort;
 import com.fraudsentinel.application.port.out.OutboxPort;
 import com.fraudsentinel.application.port.out.TransactionRepositoryPort;
 import com.fraudsentinel.application.usecase.fraud.AnalyzeTransactionUseCaseImpl;
+import com.fraudsentinel.application.usecase.fraud.EnrichFraudAnalysisUseCaseImpl;
 import com.fraudsentinel.application.usecase.transaction.SubmitTransactionUseCaseImpl;
 import com.fraudsentinel.domain.fraud.FraudAnalysisEngine;
 import com.fraudsentinel.domain.fraud.FraudRule;
@@ -45,11 +48,20 @@ public class UseCaseConfig {
     public AnalyzeTransactionUseCase analyzeTransactionUseCase(
             TransactionRepositoryPort transactionRepositoryPort,
             FraudAnalysisRepositoryPort fraudAnalysisRepositoryPort,
-            FraudAnalysisEngine fraudAnalysisEngine) {
+            FraudAnalysisEngine fraudAnalysisEngine,
+            OutboxPort outboxPort) {
         return new AnalyzeTransactionUseCaseImpl(
                 transactionRepositoryPort,
                 fraudAnalysisRepositoryPort,
-                fraudAnalysisEngine
+                fraudAnalysisEngine,
+                outboxPort
         );
+    }
+
+    @Bean
+    public EnrichFraudAnalysisUseCase enrichFraudAnalysisUseCase(
+            AiAnalysisPort aiAnalysisPort,
+            FraudAnalysisRepositoryPort fraudAnalysisRepositoryPort) {
+        return new EnrichFraudAnalysisUseCaseImpl(aiAnalysisPort, fraudAnalysisRepositoryPort);
     }
 }

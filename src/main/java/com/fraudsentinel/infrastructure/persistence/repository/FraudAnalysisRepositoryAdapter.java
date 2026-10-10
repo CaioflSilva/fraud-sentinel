@@ -41,4 +41,20 @@ public class FraudAnalysisRepositoryAdapter implements FraudAnalysisRepositoryPo
             throw new RuntimeException("Erro ao salvar analise de fraude", e);
         }
     }
+
+    @Override
+    public void enrich(UUID transactionId, int aiScore, int finalScore, String aiJustification) {
+        var entity = jpaRepository.findByTransactionId(transactionId)
+                .orElseThrow(() -> new RuntimeException(
+                        "FraudAnalysis nao encontrada para enrich: transactionId=" + transactionId));
+
+        entity.setAiScore(aiScore);
+        entity.setFinalScore(finalScore);
+        entity.setAiJustification(aiJustification);
+
+        jpaRepository.save(entity);
+
+        log.info("Enriquecimento IA salvo: transactionId={}, aiScore={}, finalScore={}",
+                transactionId, aiScore, finalScore);
+    }
 }

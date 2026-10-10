@@ -6,5 +6,7 @@ import java.util.UUID;
 
 public interface FraudAnalysisRepositoryPort {
 
-    void save(UUID transactionId, FraudAnalysis analysis, int finalScore);
+    void save(UUID transactionId, FraudAnalysis fraudAnalysis, int finalScore);
+
+    void enrich(UUID transactionId, int aiScore, int finalScore, String aiJustification);
 }

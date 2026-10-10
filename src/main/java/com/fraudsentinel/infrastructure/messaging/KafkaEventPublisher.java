@@ -14,7 +14,7 @@ public class KafkaEventPublisher implements EventPublisherPort {
 
     private static final String TOPIC = "transaction-created";
 
-    private final KafkaTemplate<String, TransactionCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void publish(TransactionCreatedEvent event) {
