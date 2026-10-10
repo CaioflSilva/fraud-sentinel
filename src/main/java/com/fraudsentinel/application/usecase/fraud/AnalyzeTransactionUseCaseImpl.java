@@ -2,13 +2,16 @@ package com.fraudsentinel.application.usecase.fraud;
 
 import com.fraudsentinel.application.port.in.AnalyzeTransactionUseCase;
 import com.fraudsentinel.application.port.out.FraudAnalysisRepositoryPort;
+import com.fraudsentinel.application.port.out.OutboxPort;
 import com.fraudsentinel.application.port.out.TransactionRepositoryPort;
+import com.fraudsentinel.domain.event.FraudAnalyzedEvent;
 import com.fraudsentinel.domain.fraud.FraudAnalysisEngine;
 import com.fraudsentinel.domain.transaction.TransactionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -18,6 +21,7 @@ public class AnalyzeTransactionUseCaseImpl implements AnalyzeTransactionUseCase 
     private final TransactionRepositoryPort transactionRepositoryPort;
     private final FraudAnalysisRepositoryPort fraudAnalysisRepositoryPort;
     private final FraudAnalysisEngine fraudAnalysisEngine;
+    private final OutboxPort outboxPort;
 
     @Override
     @Transactional
@@ -68,5 +72,22 @@ public class AnalyzeTransactionUseCaseImpl implements AnalyzeTransactionUseCase 
         }
 
         transactionRepositoryPort.save(transaction);
+
+        // Publica FraudAnalyzedEvent no outbox para enriquecimento IA assíncrono
+        var fraudAnalyzedEvent = new FraudAnalyzedEvent(
+                transactionId,
+                transaction.getMoney().getAmount(),
+                transaction.getMoney().getCurrency(),
+                transaction.getDescription(),
+                transaction.getDeviceId(),
+                transaction.getLocation(),
+                finalScore,
+                analysis.riskLevel().name(),
+                analysis.triggeredRules(),
+                analysis.reasons(),
+                LocalDateTime.now()
+        );
+        outboxPort.saveEvent(fraudAnalyzedEvent);
+        log.info("FraudAnalyzedEvent gravado no outbox: transactionId={}", transactionId);
     }
 }
