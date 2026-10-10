@@ -41,6 +41,18 @@ spring:
       properties:
         spring.json.trusted.packages: com.fraudsentinel.*
 
+  ai:
+    openai:
+      # Groq expoe API compativel com OpenAI. Sem a chave real, a IA falha
+      # e o sistema segue so com o rule engine (ADR-0003).
+      api-key: ${GROQ_API_KEY:chave-nao-configurada}
+      base-url: https://api.groq.com/openai
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          model: llama-3.3-70b-versatile
+          temperature: 0.3
+
 server:
   port: 8080
 
