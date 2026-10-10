@@ -43,14 +43,11 @@ spring:
 
   ai:
     openai:
-      # Groq expoe API compativel com OpenAI. Sem a chave real, a IA falha
-      # e o sistema segue so com o rule engine (ADR-0003).
       api-key: ${GROQ_API_KEY:chave-nao-configurada}
-      base-url: https://api.groq.com/openai
+      base-url: https://api.groq.com/openai/v1
       chat:
-        completions-path: /v1/chat/completions
         options:
-          model: llama-3.3-70b-versatile
+          model: openai/gpt-oss-120b
           temperature: 0.3
 
 server:
@@ -60,8 +57,8 @@ jwt:
   secret: ${JWT_SECRET:fraud-sentinel-super-secret-key-that-is-at-least-256-bits-long-for-hs256}
   access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
   refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
-
 logging:
   level:
     com.fraudsentinel: DEBUG
     org.hibernate.SQL: DEBUG
+    "org.springframework.security": DEBUG
