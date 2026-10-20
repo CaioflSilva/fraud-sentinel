@@ -15,7 +15,7 @@ Sistema de detecção de fraudes financeiras em tempo real, construído com arqu
 
 ## Visão Geral
 
-O Fraud Sentinel recebe transações financeiras, processa eventos via Kafka, aplica regras de fraude configuráveis e calcula um score de risco em tempo real. A Inteligência Artificial atua como camada de explicabilidade assíncrona — ela nunca toma a decisão final (veja [ADR-0003](docs/adr/0003-ia-assincrona-explicabilidade.md)).
+O Fraud Sentinel recebe transações financeiras, processa eventos via Kafka, aplica regras de fraude configuráveis e calcula um score de risco em tempo real. A Inteligência Artificial atua como camada de explicabilidade assíncrona  ela nunca toma a decisão final (veja [ADR-0003](docs/adr/0003-ia-assincrona-explicabilidade.md)).
 
 ```mermaid
 graph TB
